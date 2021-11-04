@@ -3,7 +3,9 @@ import './App.css';
 import { useState, useEffect, useCallback } from 'react'
 import Paho from 'paho-mqtt'
 
-var client = new Paho.Client("broker.emqx.io", Number(8084), "asdas")
+const host = "broker.emqx.io"
+const port = 8084
+var client = new Paho.Client(host, Number(port), "asdas")
 
 function App() {
   const [data, setData] = useState({})
@@ -26,7 +28,7 @@ function App() {
   }
 
   const connectMQTT = useCallback(() => {
-    client = new Paho.Client("broker.emqx.io", Number(8083), "asdas")
+    client = new Paho.Client(host, Number(port), "asdas")
     client.connect({
       onSuccess: onConnect
     })
