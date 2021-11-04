@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Paho from 'paho-mqtt'
 import { ResponsiveLine } from '@nivo/line'
 
@@ -123,9 +123,30 @@ const topics = [
   'dnth/energy/5'
 ]
 var chartData = {}
+var countData = 0
 topics.forEach((topic) => {
   chartData = { ...chartData, [topic]: { id: topic, data: [] } }
 })
+
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
 
 function App() {
   const [data, setData] = useState({})
@@ -140,14 +161,8 @@ function App() {
 
   client.onMessageArrived = function (message) {
     // console.log(data)
-    // console.log("Message Arrived: " + message.payloadString)
-    const topic = message.destinationName
-    chartData[topic].data.push({ x: chartData[topic].data.length + 1, y: message.payloadString })
-    // console.log(chartData)
-    setData({ ...data, [topic]: message.payloadString })
-    const useData = Object.keys(chartData).map((key) => chartData[key])
-    console.log(useData)
-    setChartUseData(useData)
+    console.log("Message Arrived: " + message.payloadString)
+    setData({ ...data, [message.destinationName]: message.payloadString })
   }
 
   function onConnect() {
@@ -167,6 +182,15 @@ function App() {
     connectMQTT()
     // console.log("render")
   }, [connectMQTT])
+
+  // useEffect(() => {
+  //   let timer = setTimeout(() => {
+  //     setChartData()
+  //   }, 2000);
+  //   return () => {
+  //     clearTimeout(timer)
+  //   }
+  // }, [countData])
 
   const publish = async (pubTopic) => {
     // const pubTopic = document.getElementById('topic_pub').value
@@ -196,6 +220,23 @@ function App() {
     console.log(data)
   }
 
+  const setChartData = () => {
+    // console.log(data)
+    if (Object.values(subStatus).reduce((sum, next) => sum || next, false)) {
+      countData++
+      topics.forEach((topic) => {
+        if (data[topic]) {
+          chartData[topic].data.push({ x: countData, y: data[topic] })
+          // console.log(chartData)
+        }
+      })
+      const useData = Object.keys(chartData).map((key) => chartData[key])
+      // console.log(useData)
+      setChartUseData(useData)
+    }
+  }
+
+  useInterval(setChartData, 3000)
 
   return (
     <div className="App">
@@ -235,7 +276,7 @@ function App() {
                 </td>
                 <td>{data[topic] || 'empty'}</td>
                 <td
-                  style={{ color: subStatus[topic] ? 'blue' : 'red' }}
+                  style={{ color: subStatus[topic] ? 'skyblue' : 'coral' }}
                 >
                   {subStatus[topic] ? 'Subscribing' : 'Unsubscribed'}
                 </td>
@@ -248,21 +289,22 @@ function App() {
         <ResponsiveLine
           data={chartUseData}
           margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-          xScale={{ type: 'linear', min: 1, max: 'auto', reverse: false }}
+          xScale={{ type: 'linear', min: 'auto', max: 'auto', reverse: false }}
           yScale={{ type: 'linear', min: 0, max: 'auto', reverse: false }}
           yFormat=" >-.0f"
           xFormat=" >-.0f"
           axisTop={null}
           axisRight={null}
-          axisBottom={{
-            orient: 'bottom',
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
+          axisBottom={null}
+          // axisBottom={{
+          //   orient: 'bottom',
+          //   tickSize: 5,
+          //   tickPadding: 5,
+          //   tickRotation: 0,
             // legend: 'transportation',
             // legendOffset: 36,
             // legendPosition: 'middle'
-          }}
+          // }}
           axisLeft={{
             orient: 'left',
             tickSize: 5,
@@ -272,12 +314,14 @@ function App() {
             legendOffset: -40,
             legendPosition: 'middle'
           }}
-          pointSize={10}
-          pointColor={{ theme: 'background' }}
-          pointBorderWidth={2}
-          pointBorderColor={{ from: 'serieColor' }}
+          // pointSize={10}
+          // pointColor={{ theme: 'background' }}
+          // pointBorderWidth={2}
+          // pointBorderColor={{ from: 'serieColor' }}
           pointLabelYOffset={-12}
-          useMesh={true}
+          useMesh={false}
+          enableSlices={'x'}
+          motionConfig="stiff"
           legends={[
             {
               anchor: 'bottom-right',
