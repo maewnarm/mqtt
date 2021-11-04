@@ -11,7 +11,11 @@ function App() {
   const topics = ["mc1/status", 'mc2/status', 'dnth/energy/1', 'dnth/energy/2']
 
   client.onConnectionLost = function (responseObject) {
+<<<<<<< HEAD
     console.log("Connection lost: " + responseObject.errorMessage)
+=======
+    console.log("Connection Lost: " + responseObject.errorMessage)
+>>>>>>> 239a74a1cca7ba4f427235e44f60b012e4a368a8
     setConnection("Connection is lost")
   }
   client.onMessageArrived = function (message) {
@@ -37,7 +41,10 @@ function App() {
     // console.log("render")
   }, [connectMQTT])
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 239a74a1cca7ba4f427235e44f60b012e4a368a8
   const publish = async (pubTopic) => {
     // const pubTopic = document.getElementById('topic_pub').value
     const elID = `msg-${pubTopic}`
