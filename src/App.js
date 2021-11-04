@@ -11,7 +11,7 @@ function App() {
   const topics = ["mc1/status", 'mc2/status', 'dnth/energy/1', 'dnth/energy/2']
 
   client.onConnectionLost = function (responseObject) {
-    console.log("Connection Lost: " + responseObject.errorMessage)
+    console.log("Connection lost: " + responseObject.errorMessage)
     setConnection("Connection is lost")
   }
   client.onMessageArrived = function (message) {
@@ -36,6 +36,7 @@ function App() {
     connectMQTT()
     // console.log("render")
   }, [connectMQTT])
+
 
   const publish = async (pubTopic) => {
     // const pubTopic = document.getElementById('topic_pub').value
@@ -71,7 +72,7 @@ function App() {
         <script src="mqttws31.js">
         </script>
         <h2>Connection status: {connection}</h2>
-        <button onClick={connectMQTT}>Connect</button>
+        <button onClick={connectMQTT} disabled={connection === "Connected"}>Connect</button>
         <button onClick={getCurrentData}>Current Data</button>
         <table>
           <thead>
@@ -88,14 +89,14 @@ function App() {
               <tr key={ind}>
                 <td>{topic}</td>
                 <td>
-                  <button onClick={() => subscribe(topic)}>Sub</button>
+                  <button onClick={() => subscribe(topic)} disabled={connection !== "Connected"}>Sub</button>
                 </td>
                 <td>
-                  <button onClick={() => unsubscribe(topic)}>Unsub</button>
+                  <button onClick={() => unsubscribe(topic)} disabled={connection !== "Connected"}>Unsub</button>
                 </td>
                 <td>
                   <input id={`msg-${topic}`} />
-                  <button onClick={() => publish(topic)}>Pub</button>
+                  <button onClick={() => publish(topic)} disabled={connection !== "Connected"}>Pub</button>
                 </td>
                 <td>{data[topic] || 'empty'}</td>
               </tr>
