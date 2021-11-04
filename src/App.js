@@ -30,7 +30,8 @@ function App() {
   const connectMQTT = useCallback(() => {
     client = new Paho.Client(host, Number(port), "asdas")
     client.connect({
-      onSuccess: onConnect
+      onSuccess: onConnect,
+      useSSL: true,
     })
   }, [])
 
