@@ -3,7 +3,8 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 10vmin;
+  width: 10vmin;
   pointer-events: none;
 }
 
@@ -43,4 +44,17 @@ td {
   background-color: gray;
   border: 1px solid white;
   margin: 0;
+}
+
+.chart {
+  height: 300px;
+  width: 100%;
+  background-color: #a7b4cc;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.chart > div {
+  width: 600px !important;
 }
