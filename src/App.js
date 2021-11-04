@@ -5,34 +5,6 @@ import Paho from 'paho-mqtt'
 
 var client = new Paho.Client("broker.emqx.io", Number(8083), "asdas")
 
-const omronFIN = (d) => {
-  const fins = require('omron-fins')
-  const options = { timeout: 5000, protocal: "udp" }
-  const ip = ''
-  const port = 9600
-  const client = fins.FinsClient(port, ip, options)
-
-  client.on('error',(error,msg) => {
-    console.log("Error: ",error,msg)
-  })
-
-  client.on('timeout',(host,msg) => {
-    console.log("Timeout: ",host,msg)
-  })
-
-  client.on('open',(info) => {
-    console.log("open: ",info)
-
-  })
-
-  client.connect()
-  const dAddress = ('00000' + d).substr(-5)
-  client.read(`D${dAddress}`, 1, (err, msg) => {
-    console.log("msg: ", msg)
-    console.log("err: ", err)
-  })
-}
-
 function App() {
   const [data, setData] = useState({})
   const [connection, setConnection] = useState("Disconnect")
